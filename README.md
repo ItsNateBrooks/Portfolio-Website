@@ -8,5 +8,5 @@ and uses
 # Installation
 Currently I don't have the website running consistently, but to run it for yourself make a git clone with the command 
 "git clone https://github.com/ItsNateBrooks/Portfolio-Website"
-Then run the site from CMD with the command "run npm dev"
+Then run the site from CMD with the command "npm run dev"
 **NOTE** Certain things will need to be installed to run the site
