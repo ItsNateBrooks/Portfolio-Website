@@ -15,24 +15,74 @@ camera.position.setZ(30);
 
 renderer.render(scene, camera);
 
-const geometry = new THREE.TorusGeometry( 10, 3, 16, 100);
-const material = new THREE.MeshStandardMaterial( {color: 0xFF6348});
-const torus = new THREE.Mesh(geometry, material);
-
-scene.add(torus)
-
 const pointLight = new THREE.PointLight(0xffffff);
-pointLight.position.set(5,5,5)
+pointLight.position.set(5,5,5);
 const ambientLight = new THREE.AmbientLight(0xffffff);
-
-scene.add(pointLight, ambientLight)
+scene.add(pointLight, ambientLight);
 
 const lightHelper = new THREE.PointLightHelper(pointLight);
 const gridHelper = new THREE.GridHelper(200,50);
-scene.add(lightHelper, gridHelper)
+scene.add(lightHelper, gridHelper);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 
+const nateTexture = new THREE.TextureLoader().load('Nate.jpg');
+const nate = new THREE.Mesh(
+  new THREE.BoxGeometry(5, 5, 5),
+  new THREE.MeshBasicMaterial({map:nateTexture})
+);
+scene.add(nate)
+
+function createPathStrings(filename) {
+  const basePath = "Clouds/";
+  const baseFilename = basePath + filename;
+  const fileType = ".jpg";
+  const sides = ["ft", "bk", "up", "dn", "rt", "lf"];
+  const pathStings = sides.map(side => {
+    return baseFilename + "_" + side + fileType;
+  });
+  return pathStings;
+}
+
+function createMaterialArray(filename) {
+  const skyboxImagepaths = createPathStrings(filename);
+  const materialArray = skyboxImagepaths.map(image => {
+    let texture = new THREE.TextureLoader().load(image);
+    return new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+  });
+  return materialArray;
+}
+
+let skyboxImage = "bluecloud";
+const materialArray = createMaterialArray(skyboxImage);
+const skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
+const skybox = new THREE.Mesh(skyboxGeo, materialArray);
+scene.add(skybox);
+
+
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  nate.rotation.y += 0.005;
+
+  //skybox.rotation.x += 0.0005;
+  skybox.rotation.y += 0.0001;
+
+
+  controls.update();
+
+  renderer.render(scene,camera);
+}
+
+animate()
+
+
+/*
+const geometry = new THREE.TorusGeometry( 10, 3, 16, 100);
+const material = new THREE.MeshStandardMaterial( {color: 0xFF6348});
+const torus = new THREE.Mesh(geometry, material);
+scene.add(torus)
 
 function addStar(){
   const geometry = new THREE.SphereGeometry(0.25, 24, 24);
@@ -46,19 +96,4 @@ function addStar(){
 }
 
 Array(200).fill().forEach(addStar)
-
-
-
-function animate(){
-  requestAnimationFrame(animate);
-
-  torus.rotation.x += 0.01;
-  torus.rotation.y += 0.005;
-  torus.rotation.z += 0.01;
-
-  controls.update();
-
-  renderer.render(scene,camera);
-}
-
-animate()
+*/
