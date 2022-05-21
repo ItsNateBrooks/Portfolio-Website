@@ -1,24 +1,28 @@
 import './style.css'
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0,10,15);
+camera.lookAt(new THREE.Vector3(5,5,5));
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#bg')
 });
-
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-camera.position.setZ(30);
-
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = true;
 renderer.render(scene, camera);
 
 const pointLight = new THREE.PointLight(0xffffff);
-pointLight.position.set(5,5,5);
+pointLight.position.set(25,25,25);
 const ambientLight = new THREE.AmbientLight(0xffffff);
-scene.add(pointLight, ambientLight);
+scene.add(pointLight);
+
 
 const lightHelper = new THREE.PointLightHelper(pointLight);
 const gridHelper = new THREE.GridHelper(200,50);
@@ -31,7 +35,11 @@ const nate = new THREE.Mesh(
   new THREE.BoxGeometry(5, 5, 5),
   new THREE.MeshBasicMaterial({map:nateTexture})
 );
+nate.castShadow = true;
+nate.receiveShadow = false;
 scene.add(nate)
+nate.scale.set(0.25, 0.25, 0.25);
+nate.position.set(0, 5, -12.8);
 
 function createPathStrings(filename) {
   const basePath = "Clouds/";
@@ -59,16 +67,26 @@ const skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
 const skybox = new THREE.Mesh(skyboxGeo, materialArray);
 scene.add(skybox);
 
+const loader = new GLTFLoader()
+loader.load('Assets/scene.gltf', function(gltf){
+  console.log(gltf)
+  const root = gltf.scene;
+  root.castShadow = true;
+  root.receiveShadow = false;
+  root.scale.set(0.05,0.05,0.05)
+  scene.add(root)
+}, function(xhr){
+  console.log((xhr.loaded/xhr.total * 100) + + "% loaded")
+}, function(error){
+  console.log("An error occurred")
+})
 
 
 function animate(){
   requestAnimationFrame(animate);
 
   nate.rotation.y += 0.005;
-
-  //skybox.rotation.x += 0.0005;
   skybox.rotation.y += 0.0001;
-
 
   controls.update();
 
